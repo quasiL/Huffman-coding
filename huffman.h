@@ -5,6 +5,11 @@
 #include <iostream>
 #include <queue>
 #include <bitset>
+#include <stdexcept>
+#include <random>
+#include <fstream>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -77,6 +82,17 @@ public:
      * Calls method code and displays information about a whole process
      */
     void print_codes();
+
+    /**
+     * Calls method code and displays only codes. Suitable for large files
+     */
+    void short_print_codes(bool r = true);
+
+    /**
+     * Getter
+     * @return coded_word
+     */
+    string get_coded_word();
 
     /**
      * Recursive tree traversal for decoding string of bits

@@ -79,6 +79,27 @@ void huffman::print_codes()
     cout << endl << "Result:" << endl << '\t' << coded_word << endl;
 }
 
+void huffman::short_print_codes(bool r)
+{
+    vector<pair<char, string>> codes;
+    code(pqueue.top(), coded_word, codes);
+    for (char j : word)
+    {
+        for (const auto& k : codes) {
+            if (j == k.first) {
+                coded_word += k.second;
+                break;
+            }
+        }
+    }
+    if (r) cout << '\t' << coded_word << endl;
+}
+
+string huffman::get_coded_word()
+{
+    return coded_word;
+}
+
 void huffman::decode(node *root, string &str, int &ind)
 {
     if (root == nullptr) return;
