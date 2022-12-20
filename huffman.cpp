@@ -53,7 +53,9 @@ void huffman::code(node *root, const string &str, vector<pair<char, string>> &re
 void huffman::print_codes()
 {
     vector<pair<char, string>> codes;
-    code(pqueue.top(), coded_word, codes);
+    if (!(pqueue.top()->right_node == nullptr && pqueue.top()->left_node == nullptr)) {
+        code(pqueue.top(), coded_word, codes);
+    }
 
     cout << endl << "Your string was: " << endl << '\t' << word << endl << endl;
     cout << "In binary format without Huffman coding: " << endl << '\t';
@@ -76,23 +78,32 @@ void huffman::print_codes()
             }
         }
     }
+    if (pqueue.top()->right_node == nullptr && pqueue.top()->left_node == nullptr) {
+        cout << '\t' << "0" << " | " << word[0] << endl;
+        for (auto l : word) coded_word += "0";
+    }
     cout << endl << "Result:" << endl << '\t' << coded_word << endl;
 }
 
 void huffman::short_print_codes(bool r)
 {
     vector<pair<char, string>> codes;
-    code(pqueue.top(), coded_word, codes);
-    for (char j : word)
-    {
-        for (const auto& k : codes) {
-            if (j == k.first) {
-                coded_word += k.second;
-                break;
+    if (!(pqueue.top()->right_node == nullptr && pqueue.top()->left_node == nullptr)) {
+        code(pqueue.top(), coded_word, codes);
+        for (char j : word)
+        {
+            for (const auto& k : codes) {
+                if (j == k.first) {
+                    coded_word += k.second;
+                    break;
+                }
             }
         }
+        if (r) cout << '\t' << coded_word << endl;
+    } else {
+        for (auto l : word) coded_word += "0";
+        if (r) cout << '\t' << coded_word << endl;
     }
-    if (r) cout << '\t' << coded_word << endl;
 }
 
 string huffman::get_coded_word()
@@ -117,11 +128,16 @@ void huffman::decode(node *root, string &str, int &ind)
 void huffman::print_decodes()
 {
     cout << endl << "Decoding result: " << endl << '\t';
-    int ind = -1;
-    while (ind < (int)coded_word.size()-1) {
-        decode(pqueue.top(), coded_word, ind);
+    if (!(pqueue.top()->right_node == nullptr && pqueue.top()->left_node == nullptr)) {
+        int ind = -1;
+        while (ind < (int)coded_word.size()-1) {
+            decode(pqueue.top(), coded_word, ind);
+        }
+        cout << endl;
+    } else {
+        cout << word;
+        cout << endl;
     }
-    cout << endl;
 }
 
 huffman::~huffman()
