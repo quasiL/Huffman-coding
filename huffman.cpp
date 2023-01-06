@@ -159,3 +159,29 @@ ostream &operator<<(ostream &out, huffman &h)
     cout << "queue contains " << h.pqueue.size() << " elements" << endl;
     return out;
 }
+
+std::pair<string, bool> lines_queue::get()
+{
+    std::unique_lock<std::mutex> lg(mutex);
+    take_var.wait(lg, [&]() { return !queue.empty() || closing; });
+    if (queue.empty()) return { string{}, true };
+    add_var.notify_one();
+    auto out = std::move(queue.front()); queue.pop();
+    return std::make_pair(out, false);
+}
+
+void lines_queue::remove(const string &e)
+{
+    std::unique_lock<std::mutex> lg(mutex);
+    add_var.wait(lg, [&]() { return queue.size() < 10 || closing; });
+    if (closing) return;
+    take_var.notify_one();
+    queue.push(e);
+}
+
+void lines_queue::close()
+{
+    closing = true;
+    take_var.notify_all();
+    add_var.notify_all();
+}

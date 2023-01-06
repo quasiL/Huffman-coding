@@ -2,6 +2,7 @@
 
 int main(int argc, char *argv[])
 {
+    auto start = std::chrono::high_resolution_clock::now();
     switch (argc) {
         case 1: {
             string in;
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
                 cout << "Options:" << endl;
                 cout << '\t' << "-r" << '\t' << '\t' << "code random sentence" << endl;
                 cout << '\t' << "-f [filename]" << '\t' << "input from file" << endl;
+                cout << '\t' << "-ft [filename]" << '\t' << "the same but with using threads" << endl;
                 cout << '\t' << "-s" << '\t' << '\t' << "save result in file" << endl;
                 cout << '\t' << "--help" << '\t' << '\t' << "display this help and exit" << endl;
                 cout << endl << "For more details see gitlab.fel.cvut.cz/khairart/huffman_coding" << endl;
@@ -56,20 +58,77 @@ int main(int argc, char *argv[])
             }
         }
         case 3: {
-            if ((string)argv[1] == "-f") {
+            if ((string)argv[1] == "-f" || (string)argv[1] == "-ft") {
                 string line;
                 ifstream inpfile ("../" + (string)argv[2]);
                 if (inpfile.is_open())
                 {
-                    cout << endl << "Result:" << endl;
-                    while (getline(inpfile,line))
-                    {
-                        if (line.empty()) continue;
-                        huffman h(line);
-                        h.create_tree();
-                        h.short_print_codes();
+                    if ((string)argv[1] == "-f") {
+                        cout << endl << "Result:" << endl;
+                        while (getline(inpfile,line))
+                        {
+                            if (line.empty()) continue;
+                            huffman h(line);
+                            h.create_tree();
+                            h.short_print_codes();
+                        }
+                        inpfile.close();
+                    } else {
+                        using namespace std::chrono_literals;
+                        lines_queue queue;
+                        auto reader = [&queue, &inpfile, &line] () {
+                            while (getline(inpfile,line))
+                            {
+                                if (line.empty()) continue;
+                                queue.remove(line);
+                            }
+                            inpfile.close();
+                            queue.close();
+                        };
+
+                        auto process1 = [&queue] () {
+                            while (true) {
+                                auto elem = queue.get();
+                                if (elem.second) {
+                                    break;
+                                }
+                                huffman h(elem.first);
+                                h.create_tree();
+                                h.short_print_codes();
+                            }
+                        };
+                        auto process2 = [&queue] () {
+                            while (true) {
+                                auto elem = queue.get();
+                                if (elem.second) {
+                                    break;
+                                }
+                                huffman h(elem.first);
+                                h.create_tree();
+                                h.short_print_codes();
+                            }
+                        };
+                        auto process3 = [&queue] () {
+                            while (true) {
+                                auto elem = queue.get();
+                                if (elem.second) {
+                                    break;
+                                }
+                                huffman h(elem.first);
+                                h.create_tree();
+                                h.short_print_codes();
+                            }
+                        };
+
+                        std::thread t1(reader);
+                        std::thread t2(process1);
+                        std::thread t3(process2);
+                        std::thread t4(process3);
+                        t1.join();
+                        t2.join();
+                        t3.join();
+                        t4.join();
                     }
-                    inpfile.close();
                 } else {
                     cout << "Unable to open file. Check if this file really exists" << endl;
                 }
@@ -116,5 +175,7 @@ int main(int argc, char *argv[])
             throw invalid_argument("Received invalid argument");
         }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Needed " << to_ms(end - start).count() << " ms to finish." << endl;
     return 0;
 }

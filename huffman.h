@@ -11,8 +11,16 @@
 #include <ctime>
 #include <iomanip>
 
+#include <mutex>
+#include <thread>
+#include <chrono>
+#include <condition_variable>
+
 using namespace std;
 
+/**
+ * Tree node
+ */
 struct node {
     char symbol = 0;
     size_t count = 0;
@@ -20,6 +28,9 @@ struct node {
     node *right_node = nullptr;
 };
 
+/**
+ * Comparing nodes
+ */
 struct compare_nodes {
     bool operator()(const node *lhs, const node *rhs) const
     {
@@ -27,6 +38,9 @@ struct compare_nodes {
     }
 };
 
+/**
+ * Main tree class
+ */
 class huffman {
 private:
     string word;
@@ -114,6 +128,47 @@ public:
      * @return output stream
      */
     friend ostream &operator << (ostream &out, huffman &h);
+};
+
+/**
+ * Timer
+ * @tparam TimePoint
+ * @param tp
+ * @return time
+ */
+template <typename TimePoint>
+std::chrono::milliseconds to_ms(TimePoint tp)
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(tp);
+}
+
+/**
+ * Queue for thread's work
+ */
+class lines_queue {
+private:
+    std::queue<string> queue;
+    std::mutex mutex;
+    std::condition_variable take_var, add_var;
+    bool closing = false;
+public:
+
+    /**
+     * Get element from the queue
+     * @return queue element
+     */
+    std::pair<string, bool> get();
+
+    /**
+     * Remove element from the queue
+     * @param e
+     */
+    void remove(string const& e);
+
+    /**
+     * Notify others about empty queue
+     */
+    void close();
 };
 
 #endif //HUFFMAN_CODING_HUFFMAN_H
