@@ -20,8 +20,9 @@ Vlakna se používají podle principu consumer-producent (třída `lines_queue`)
 `./huffman_coding --help`
 
 ## Příklady
-`./huffman_coding`
-`./huffman_coding -r`
-`./huffman_coding -f some_text_file.txt`
-`./huffman_coding -f -s some_text_file.txt`
-`./huffman_coding -ft some_text_file.txt`
+- `./huffman_coding`
+- `./huffman_coding -r`
+- `./huffman_coding -f some_text_file.txt`
+- `./huffman_coding -f -s some_text_file.txt`
+- `./huffman_coding -ft some_text_file.txt`
+
